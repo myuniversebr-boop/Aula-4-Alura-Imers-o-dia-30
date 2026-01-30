@@ -10,17 +10,12 @@ df = pd.read_csv("dados-imersao-final.csv")
 
 # --- Filtros na barra lateral ---
 st.sidebar.header("Filtros")
-
 ano = st.sidebar.selectbox("Ano", sorted(df['ano'].dropna().unique()))
-empresa = st.sidebar.multiselect("Empresa", sorted(df['empresa'].dropna().unique()))
 pais = st.sidebar.multiselect("País (ISO3)", sorted(df['residencia_iso3'].dropna().unique()))
 senioridade = st.sidebar.multiselect("Senioridade", sorted(df['senioridade'].dropna().unique()))
 
 # --- Aplicar filtros ---
 df_filtrado = df[df['ano'] == ano]
-
-if empresa:
-    df_filtrado = df_filtrado[df_filtrado['empresa'].isin(empresa)]
 
 if pais:
     df_filtrado = df_filtrado[df_filtrado['residencia_iso3'].isin(pais)]
@@ -60,7 +55,7 @@ with colB:
     )
     st.plotly_chart(fig2, use_container_width=True)
 
-# --- Gráfico extra ---
+# --- Gráfico extra: salário médio por país ---
 st.markdown("### Salário Médio por País")
 fig3 = px.bar(
     df_filtrado.groupby('residencia_iso3')['salario'].mean().reset_index(),
