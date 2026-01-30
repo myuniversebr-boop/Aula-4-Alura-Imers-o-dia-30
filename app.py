@@ -62,4 +62,5 @@ st.subheader("Indicadores")
 colA, colB, colC = st.columns(3)
 colA.metric("Salário Médio", round(df_filtrado['salario'].mean(), 2))
 colB.metric("Salário Máximo", df_filtrado['salario'].max())
+
 colC.metric("Salário Mínimo", df_filtrado['salario'].min())
