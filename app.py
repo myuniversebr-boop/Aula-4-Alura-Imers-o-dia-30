@@ -70,5 +70,3 @@ fig3 = px.bar(
     labels={'residencia_iso3': 'País (ISO3)', 'usd': 'Salário Médio (USD)'}
 )
 st.plotly_chart(fig3, use_container_width=True)
-        title='Top 10 Cargos por Salário
-
