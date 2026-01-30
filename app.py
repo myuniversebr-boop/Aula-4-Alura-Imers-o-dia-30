@@ -3,64 +3,46 @@ import plotly.express as px
 import streamlit as st
 
 # Configuração da página
-st.set_page_config(page_title="Dashboard Salários", layout="wide")
+st.set_page_config(page_title="Dashboard de Salários", layout="wide")
 
-# Carregar dados
+# Carregar os dados
 df = pd.read_csv("dados-imersao-final.csv")
 
 # --- Barra lateral com filtros ---
 st.sidebar.header("Filtros")
 
-ano_selecionado = st.sidebar.selectbox("Selecione o ano", df['ano'].unique())
-senioridade_selecionada = st.sidebar.multiselect("Selecione a senioridade", df['senioridade'].unique())
-empresa_selecionada = st.sidebar.multiselect("Selecione a empresa", df['empresa'].unique())
+ano = st.sidebar.selectbox("Selecione o ano", sorted(df['ano'].unique()))
+empresa = st.sidebar.multiselect("Selecione a empresa", sorted(df['empresa'].dropna().unique()))
+pais = st.sidebar.multiselect("Selecione o país (ISO3)", sorted(df['residencia_iso3'].dropna().unique()))
+senioridade = st.sidebar.multiselect("Selecione a senioridade", sorted(df['senioridade'].dropna().unique()))
 
 # --- Aplicar filtros ---
-df_filtrado = df[df['ano'] == ano_selecionado]
+df_filtrado = df[df['ano'] == ano]
 
-if senioridade_selecionada:
-    df_filtrado = df_filtrado[df_filtrado['senioridade'].isin(senioridade_selecionada)]
+if empresa:
+    df_filtrado = df_filtrado[df_filtrado['empresa'].isin(empresa)]
 
-if empresa_selecionada:
-    df_filtrado = df_filtrado[df_filtrado['empresa'].isin(empresa_selecionada)]
+if pais:
+    df_filtrado = df_filtrado[df_filtrado['residencia_iso3'].isin(pais)]
 
-# --- Layout em colunas ---
-col1, col2 = st.columns(2)
-
-# Gráfico 1: Top 10 cargos por salário
-with col1:
-    fig1 = px.bar(
-        df_filtrado.head(10),
-        x='cargo',
-        y='salario',
-        title=f'Top 10 Cargos por Salário ({ano_selecionado})'
-    )
-    st.plotly_chart(fig1, use_container_width=True)
-
-# Gráfico 2: Distribuição de salários por senioridade
-with col2:
-    fig2 = px.box(
-        df_filtrado,
-        x='senioridade',
-        y='salario',
-        title='Distribuição de Salários por Senioridade'
-    )
-    st.plotly_chart(fig2, use_container_width=True)
-
-# --- Gráfico extra: evolução dos salários ao longo dos anos ---
-fig3 = px.line(
-    df,
-    x='ano',
-    y='salario',
-    color='cargo',
-    title='Evolução Salarial por Cargo'
-)
-st.plotly_chart(fig3, use_container_width=True)
+if senioridade:
+    df_filtrado = df_filtrado[df_filtrado['senioridade'].isin(senioridade)]
 
 # --- Métricas rápidas ---
-st.subheader("Indicadores")
-colA, colB, colC = st.columns(3)
-colA.metric("Salário Médio", round(df_filtrado['salario'].mean(), 2))
-colB.metric("Salário Máximo", df_filtrado['salario'].max())
+st.markdown("### Indicadores Gerais")
+col1, col2, col3 = st.columns(3)
+col1.metric("Salário Médio", f"${df_filtrado['usd'].mean():,.2f}")
+col2.metric("Salário Máximo", f"${df_filtrado['usd'].max():,.2f}")
+col3.metric("Salário Mínimo", f"${df_filtrado['usd'].min():,.2f}")
 
-colC.metric("Salário Mínimo", df_filtrado['salario'].min())
+# --- Layout dos gráficos ---
+st.markdown("### Visualizações")
+
+colA, colB = st.columns(2)
+
+with colA:
+    fig1 = px.bar(
+        df_filtrado.groupby('cargo')['usd'].mean().sort_values(ascending=False).head(10).reset_index(),
+        x='cargo',
+        y='usd',
+        title='Top 10 Cargos por Salário
