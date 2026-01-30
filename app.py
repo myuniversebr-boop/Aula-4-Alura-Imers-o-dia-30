@@ -45,4 +45,30 @@ with colA:
         df_filtrado.groupby('cargo')['usd'].mean().sort_values(ascending=False).head(10).reset_index(),
         x='cargo',
         y='usd',
+        title='Top 10 Cargos por Salário Médio (USD)',
+        labels={'cargo': 'Cargo', 'usd': 'Salário Médio (USD)'}
+    )
+    st.plotly_chart(fig1, use_container_width=True)
+
+with colB:
+    fig2 = px.box(
+        df_filtrado,
+        x='senioridade',
+        y='usd',
+        title='Distribuição Salarial por Senioridade',
+        labels={'senioridade': 'Senioridade', 'usd': 'Salário (USD)'}
+    )
+    st.plotly_chart(fig2, use_container_width=True)
+
+# --- Gráfico extra: salário médio por país ---
+st.markdown("### Salário Médio por País")
+fig3 = px.bar(
+    df_filtrado.groupby('residencia_iso3')['usd'].mean().reset_index(),
+    x='residencia_iso3',
+    y='usd',
+    title='Salário Médio por País (USD)',
+    labels={'residencia_iso3': 'País (ISO3)', 'usd': 'Salário Médio (USD)'}
+)
+st.plotly_chart(fig3, use_container_width=True)
         title='Top 10 Cargos por Salário
+
